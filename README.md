@@ -1,0 +1,2 @@
+# dashboard-mozaik
+Display dashboard
