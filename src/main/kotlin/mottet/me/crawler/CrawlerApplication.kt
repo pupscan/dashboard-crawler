@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
 @RestController
 @RequestMapping("/kkbb")
 class KissKissBankBankController {
-    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
+    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     var collect = fetchCollect()
     var backers = fetchBackers()
     var lastUpdated = lastUpdated()
@@ -54,7 +54,7 @@ class KissKissBankBankController {
 @RestController
 @RequestMapping("/indiegogo")
 class IndiegogoController {
-    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
+    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     var collect = fetchCollect()
     var backers = fetchBackers()
     var lastUpdated = lastUpdated()
