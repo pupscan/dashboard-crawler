@@ -1,8 +1,5 @@
-FROM maven:3.5
+FROM maven:3.5.0-alpine
 MAINTAINER thibaut.mottet@pupscan.fr
-
-ENV TZ=Europe/Paris
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /workspace
 COPY . .
