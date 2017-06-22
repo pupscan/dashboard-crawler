@@ -81,11 +81,13 @@ class IndiegogoController(val dateTime: DateTime) {
             .response[fieldName].toString().toInt()
 }
 
+
+
 @Service
 class DateTime {
-    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")!!
 
-    fun now() = LocalDateTime.now().format(yyyy_MM_dd_hh_mm_ss)
+    fun now() = LocalDateTime.now().format(yyyy_MM_dd_hh_mm_ss)!!
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
