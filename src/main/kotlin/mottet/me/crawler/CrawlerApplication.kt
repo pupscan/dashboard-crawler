@@ -40,6 +40,7 @@ class KissKissBankBankController(val dateTime: DateTime) {
     fun fetch() {
         collect = fetchCollect()
         backers = fetchBackers()
+        lastUpdated = lastUpdated()
     }
 
     private fun lastUpdated() = dateTime.now()
