@@ -3,6 +3,7 @@ package mottet.me.crawler
 import org.jsoup.Jsoup
 import org.junit.Test
 import org.springframework.web.client.RestTemplate
+import java.text.DecimalFormat
 
 //@RunWith(SpringRunner::class)
 //@SpringBootTest

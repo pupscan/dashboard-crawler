@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -60,7 +61,7 @@ class IndiegogoController(val dateTime: DateTime) {
     var lastUpdated = lastUpdated()
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"$collect\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun collect() = "{\"current\" : \"${collect.toCurrency()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/backers")
     fun backers() = "{\"current\" : \"$backers\", \"lastUpdated\" :  \"$lastUpdated\"}"
@@ -83,6 +84,7 @@ class IndiegogoController(val dateTime: DateTime) {
 }
 
 
+fun Int.toCurrency() = DecimalFormat("#,###.##").format(this)!!
 
 @Service
 class DateTime {
