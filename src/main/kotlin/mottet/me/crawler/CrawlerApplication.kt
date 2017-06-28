@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @EnableScheduling
 @SpringBootApplication
@@ -25,14 +27,14 @@ fun main(args: Array<String>) {
 
 @RestController
 @RequestMapping("/kkbb")
-class KissKissBankBankController(val dateTime: DateTime) {
+class KissKissBankBankController {
     var collect = fetchCollect()
     var backers = fetchBackers()
     var lastUpdated = lastUpdated()
 
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"$collect\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun collect() = "{\"current\" : \"${collect.toCurrency()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/backers")
     fun backers() = "{\"current\" : \"$backers\", \"lastUpdated\" :  \"$lastUpdated\" }"
@@ -44,9 +46,9 @@ class KissKissBankBankController(val dateTime: DateTime) {
         lastUpdated = lastUpdated()
     }
 
-    private fun lastUpdated() = dateTime.now()
-    private fun fetchBackers() = fetch(".bankers")
-    private fun fetchCollect() = fetch(".collected_amount").replace("€", "")
+    private fun lastUpdated() = now()
+    private fun fetchBackers() = fetch(".bankers").replace(" ", "").toInt()
+    private fun fetchCollect() = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
     private fun fetch(css : String) = Jsoup.connect("https://www.kisskissbankbank.com/pup-le-mini-scanner-connecte-le-plus-rapide-du-monde?ref=selection")
             .get()
             .select(css)
@@ -55,7 +57,7 @@ class KissKissBankBankController(val dateTime: DateTime) {
 
 @RestController
 @RequestMapping("/indiegogo")
-class IndiegogoController(val dateTime: DateTime) {
+class IndiegogoController {
     var collect = fetchCollect()
     var backers = fetchBackers()
     var lastUpdated = lastUpdated()
@@ -74,7 +76,7 @@ class IndiegogoController(val dateTime: DateTime) {
         lastUpdated = lastUpdated()
     }
 
-    private fun lastUpdated() = dateTime.now()
+    private fun lastUpdated() = now()
     private fun fetchBackers() = fetch("contributions_count")
     private fun fetchCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
     private fun fetch(fieldName : String) = RestTemplate().getForObject("https://api.indiegogo.com/1" +
@@ -83,15 +85,8 @@ class IndiegogoController(val dateTime: DateTime) {
             .response[fieldName].toString().toInt()
 }
 
-
-fun Int.toCurrency() = DecimalFormat("#,###.##").format(this)!!
-
-@Service
-class DateTime {
-    val yyyy_MM_dd_hh_mm_ss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")!!
-
-    fun now() = LocalDateTime.now().format(yyyy_MM_dd_hh_mm_ss)!!
-}
+fun Int.toCurrency() = DecimalFormat("#,###", DecimalFormatSymbols(Locale.FRANCE)).format(this)!!
+fun now() = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Response(val response: Map<String, Any>)

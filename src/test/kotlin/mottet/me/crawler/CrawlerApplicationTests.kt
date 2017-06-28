@@ -20,7 +20,9 @@ class CrawlerApplicationTests {
 
 	@Test
 	fun indiegogo() {
-		println(fetchCollect())
+        println(now())
+        println(1309480398.toCurrency())
+//		println(fetchCollect())
 	}
 
 	private fun fetchCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
