@@ -6,7 +6,7 @@ class FacebookTest {
 
     @Test
     fun displayLike() {
-        println(FacebookController().favorite())
+        //println(FacebookController().favorite())
 //        println(TwitterController().followers())
     }
 }
