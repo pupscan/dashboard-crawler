@@ -1,9 +1,9 @@
 package mottet.me.crawler
 
+import mottet.me.crawler.source.Response
 import org.jsoup.Jsoup
 import org.junit.Test
 import org.springframework.web.client.RestTemplate
-import java.text.DecimalFormat
 
 //@RunWith(SpringRunner::class)
 //@SpringBootTest
@@ -21,7 +21,7 @@ class CrawlerApplicationTests {
 	@Test
 	fun indiegogo() {
         println(now())
-        println(1309480398.toCurrency())
+        println(1309480398.toReadableNumber())
 //		println(fetchCollect())
 	}
 
@@ -30,6 +30,6 @@ class CrawlerApplicationTests {
 			".1/campaigns/1918821" +
 			".json?api_token=16e63457e7a24c06d39b40b52c0df273098cab82ccd3d4abaafd1a9c7a4edfe7", Response::class.java)
 			.response[fieldName].toString().toInt()
-
-
 }
+
+
