@@ -26,10 +26,9 @@ class IndiegogoController {
     final fun fetch() {
         collect = fetchCollect()
         backers = fetchBackers()
-        lastUpdated = lastUpdated()
+        lastUpdated = now()
     }
 
-    private fun lastUpdated() = now()
     private fun fetchBackers() = fetch("contributions_count")
     private fun fetchCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
     private fun fetch(fieldName: String) = RestTemplate().getForObject("https://api.indiegogo.com/1" +

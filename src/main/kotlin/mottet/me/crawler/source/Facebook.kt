@@ -24,10 +24,9 @@ class FacebookController {
     fun fetch() {
         favorites = fetchFavorite()
         followers = fetchFollowers()
-        lastUpdated = lastUpdated()
+        lastUpdated =  now()
     }
 
-    private fun lastUpdated() = now()
     private fun fetchFavorite() = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     private fun fetchFollowers() = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     private fun fetch(css: String) = Jsoup.connect("https://fr-fr.facebook.com/pupscan/")

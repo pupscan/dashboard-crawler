@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class KissKissBankBankController {
     private var collect = 0
     private var backers = 0
-    private lateinit var lastUpdated : String
+    private var lastUpdated = now()
 
     @RequestMapping("/collect")
     fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
@@ -21,16 +21,15 @@ class KissKissBankBankController {
     fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
-    final fun fetch() {
+    fun fetch() {
         collect = fetchCollect()
         backers = fetchBackers()
-        lastUpdated = lastUpdated()
+        lastUpdated = now()
     }
 
-    private fun lastUpdated() = now()
     private fun fetchBackers() = fetch(".bankers").replace(" ", "").toInt()
     private fun fetchCollect() = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
-    private fun fetch(css : String) = Jsoup.connect("https://www.kisskissbankbank.com/pup-le-mini-scanner-connecte-le-plus-rapide-du-monde?ref=selection")
+    private fun fetch(css: String) = Jsoup.connect("https://www.kisskissbankbank.com/pup-le-mini-scanner-connecte-le-plus-rapide-du-monde?ref=selection")
             .get()
             .select(css)
             .text()!!

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class TwitterController {
     private var favorites = 0
     private var followers = 0
-    private lateinit var lastUpdated: String
+    private var lastUpdated = now()
 
     @RequestMapping("/favorites")
     fun favorite() = "{\"current\" : \"${favorites.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
@@ -24,10 +24,9 @@ class TwitterController {
     fun fetch() {
         favorites = fetchFavorite()
         followers = fetchFollowers()
-        lastUpdated = lastUpdated()
+        lastUpdated = now()
     }
 
-    private fun lastUpdated() = now()
     private fun fetchFavorite() = fetch("[data-nav='favorites'] .ProfileNav-value").toInt()
     private fun fetchFollowers() = fetch("[data-nav='followers'] .ProfileNav-value").toInt()
     private fun fetch(css: String) = Jsoup.connect("https://twitter.com/pupscan")
