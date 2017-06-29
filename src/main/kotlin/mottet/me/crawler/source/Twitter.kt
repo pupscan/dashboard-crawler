@@ -14,18 +14,14 @@ class TwitterController {
     private var followers = 0
     private lateinit var lastUpdated: String
 
-    init {
-        fetch()
-    }
-
     @RequestMapping("/favorites")
     fun favorite() = "{\"current\" : \"${favorites.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/followers")
     fun followers() = "{\"current\" : \"${followers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
-    @Scheduled(fixedDelay = 700_000)
-    private fun fetch() {
+    @Scheduled(fixedDelay = 700_000, initialDelay = 0)
+    fun fetch() {
         favorites = fetchFavorite()
         followers = fetchFollowers()
         lastUpdated = lastUpdated()

@@ -6,7 +6,9 @@ class TwitterTest {
 
     @Test
     fun displayLike() {
-        println(TwitterController().favorite())
-        println(TwitterController().followers())
+        val twitterController = TwitterController()
+        twitterController.fetch()
+        println(twitterController.favorite())
+        println(twitterController.followers())
     }
 }

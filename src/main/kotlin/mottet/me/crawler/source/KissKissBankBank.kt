@@ -14,17 +14,13 @@ class KissKissBankBankController {
     private var backers = 0
     private lateinit var lastUpdated : String
 
-    init {
-        fetch()
-    }
-
     @RequestMapping("/collect")
     fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/backers")
     fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
-    @Scheduled(fixedDelay = 350_000)
+    @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
         collect = fetchCollect()
         backers = fetchBackers()

@@ -6,7 +6,9 @@ class FacebookTest {
 
     @Test
     fun displayLike() {
-        //println(FacebookController().favorite())
-//        println(TwitterController().followers())
+        val facebookController = FacebookController()
+        facebookController.fetch()
+        println(facebookController.favorite())
+        println(facebookController.followers())
     }
 }
