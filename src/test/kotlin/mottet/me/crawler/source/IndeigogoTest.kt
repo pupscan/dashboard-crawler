@@ -2,9 +2,11 @@ package mottet.me.crawler.source
 
 import org.junit.Test
 
-class FacebookTest {
+class IndeigogoTestTest {
 
     @Test
-    fun displayLike() {
+    fun displayCurrentMonthCollect() {
+
     }
+
 }

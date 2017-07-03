@@ -1,7 +1,6 @@
 package mottet.me.crawler.source
 
 import mottet.me.crawler.now
-import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,10 +14,10 @@ class KissKissBankBankController {
     private var lastUpdated = now()
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun collect() = "{\"current\" : \"$collect\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/backers")
-    fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun backers() = "{\"current\" : \"$backers\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     fun fetch() {
