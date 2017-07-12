@@ -20,7 +20,7 @@ import java.util.*
 class IndiegogoController(val repository: IndiegogoRepository) {
     private var collect = 0
     private var backers = 0
-    private lateinit var lastUpdated: String
+    private var lastUpdated = now()
 
     @RequestMapping("/collect")
     fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"

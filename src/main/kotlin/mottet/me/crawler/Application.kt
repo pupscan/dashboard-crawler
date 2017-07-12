@@ -15,15 +15,7 @@ import java.util.*
 
 @EnableScheduling
 @SpringBootApplication
-class CrawlerApplication {
-    @Bean
-    fun corsConfigurer() =
-            object : WebMvcConfigurerAdapter() {
-                override fun addCorsMappings(registry: CorsRegistry) {
-                    registry.addMapping("/**").allowedOrigins("http://localhost:8081")
-                }
-            }
-}
+class CrawlerApplication
 
 fun main(args: Array<String>) {
     SpringApplication.run(CrawlerApplication::class.java, *args)
@@ -32,6 +24,6 @@ fun main(args: Array<String>) {
 /**
  * Util
  */
-fun now() = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
 fun Int.toReadableNumber() = DecimalFormat("#,###", DecimalFormatSymbols(Locale.FRANCE)).format(this)!!
+fun now() = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
 
