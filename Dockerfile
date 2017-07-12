@@ -5,5 +5,5 @@ WORKDIR /workspace
 COPY . .
 RUN mvn install
 
-CMD ["java", "-Dspring.profiles.active=production", "-jar", "./target/crawler-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-Dspring.profiles.active=prod", "-jar", "./target/crawler-0.0.1-SNAPSHOT.jar"]
 
