@@ -1,6 +1,7 @@
 package mottet.me.crawler.source
 
 import mottet.me.crawler.now
+import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -13,17 +14,17 @@ import java.time.LocalDate
 import java.util.*
 
 @RestController
+@RequestMapping("/twitter")
 class TwitterController(val repository: TwitterRepository) {
     private var favorites = 0
     private var followers = 0
     private var lastUpdated = now()
 
-    @RequestMapping("/twitter")
-    fun metrics() = "{" +
-            "\"favorites\" : \"$favorites\", " +
-            "\"followers\" : \"$followers\", " +
-            "\"lastUpdated\" : \"$lastUpdated\"" +
-            "}"
+    @RequestMapping("/favorites")
+    fun favorite() = "{\"current\" : \"${favorites.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
+
+    @RequestMapping("/followers")
+    fun followers() = "{\"current\" : \"${followers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {

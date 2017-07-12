@@ -2,6 +2,7 @@ package mottet.me.crawler.source
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import mottet.me.crawler.now
+import mottet.me.crawler.toReadableNumber
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -22,10 +23,10 @@ class IndiegogoController(val repository: IndiegogoRepository) {
     private lateinit var lastUpdated: String
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"$collect\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     @RequestMapping("/backers")
-    fun backers() = "{\"current\" : \"$backers\", \"lastUpdated\" :  \"$lastUpdated\"}"
+    fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\"}"
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {

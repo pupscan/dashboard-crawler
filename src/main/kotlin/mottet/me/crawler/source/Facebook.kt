@@ -1,5 +1,6 @@
 package mottet.me.crawler.source
 
+import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -19,19 +20,18 @@ class FacebookController(val repository: FacebookRepository) {
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
-    @RequestMapping("/current")
-    fun metrics() = "{" +
-            "\"favorites\" : \"$favorites\", " +
-            "\"followers\" : \"$followers\", " +
-            "\"lastUpdated\" : \"$lastUpdated\"" +
-            "}"
+    @RequestMapping("/favorites")
+    fun favorite() = "{\"current\" : \"${favorites.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
+
+    @RequestMapping("/followers")
+    fun followers() = "{\"current\" : \"${followers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
 
     fun currentFavorites() = favorites
     fun currentFollowers() = followers
     fun currentLastUpdated() = lastUpdated
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
-    fun currentMetrics() {
+    fun fetch() {
         favorites = fetchFavorite()
         followers = fetchFollowers()
         lastUpdated = LocalDateTime.now()
