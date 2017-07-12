@@ -2,15 +2,21 @@ package mottet.me.crawler.source
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import mottet.me.crawler.now
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.repository.CrudRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
+import java.time.LocalDate
+import java.util.*
 
 
 @RestController
 @RequestMapping("/indiegogo")
-class IndiegogoController {
+class IndiegogoController(val repository: IndiegogoRepository) {
     private var collect = 0
     private var backers = 0
     private lateinit var lastUpdated: String
@@ -28,6 +34,11 @@ class IndiegogoController {
         lastUpdated = now()
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")
+    fun saveMetric() {
+        repository.save(Indiegogo(date = LocalDate.now(), collect = collect, backers = backers))
+    }
+
     private fun fetchBackers() = fetch("contributions_count")
     private fun fetchCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
     private fun fetch(fieldName: String) = RestTemplate().getForObject("https://api.indiegogo.com/1" +
@@ -39,3 +50,10 @@ class IndiegogoController {
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Response(val response: Map<String, Any>)
 
+@Document
+class Indiegogo(@Id val id: String = UUID.randomUUID().toString(),
+                @Indexed val date: LocalDate,
+                val collect: Int,
+                val backers: Int)
+
+interface IndiegogoRepository : CrudRepository<Indiegogo, String>
