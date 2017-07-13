@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 
@@ -28,6 +29,26 @@ class IndiegogoController(val repository: IndiegogoRepository) {
     @RequestMapping("/backers")
     fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\"}"
 
+    @RequestMapping("/collect/month")
+    fun currentMonthByDayCollect(): Graph {
+        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
+        val labelsAndData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
+                .map { it.date to it.collect }
+                .toMap()
+        return Graph(labelsAndData.keys.map { it.dayOfMonth.toString() }, labelsAndData.values)
+    }
+
+    @RequestMapping("/backers/month")
+    fun currentMonthByDayBackers(): Graph {
+        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
+        val labelsAndData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
+                .map { it.date to it.backers }
+                .toMap()
+        return Graph(labelsAndData.keys.map { it.dayOfMonth.toString() }, labelsAndData.values)
+    }
+
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
         collect = fetchCollect()
@@ -35,7 +56,7 @@ class IndiegogoController(val repository: IndiegogoRepository) {
         lastUpdated = now()
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 59 23 * * ?")
     fun saveMetric() {
         repository.save(Indiegogo(date = LocalDate.now(), collect = collect, backers = backers))
     }
@@ -48,6 +69,8 @@ class IndiegogoController(val repository: IndiegogoRepository) {
             .response[fieldName].toString().toInt()
 }
 
+data class Graph(val labels: Collection<String>, val data: Collection<Int>)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Response(val response: Map<String, Any>)
 
@@ -57,4 +80,6 @@ class Indiegogo(@Id val id: String = UUID.randomUUID().toString(),
                 val collect: Int,
                 val backers: Int)
 
-interface IndiegogoRepository : CrudRepository<Indiegogo, String>
+interface IndiegogoRepository : CrudRepository<Indiegogo, String> {
+    fun findByDateBetween(from: LocalDate, to: LocalDate): List<Indiegogo>
+}

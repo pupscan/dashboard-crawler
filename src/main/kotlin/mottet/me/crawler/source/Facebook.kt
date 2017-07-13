@@ -33,8 +33,8 @@ class FacebookController(val repository: FacebookRepository) {
         lastUpdated = now()
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    fun saveMetric() {
+    @Scheduled(cron = "0 59 23 * * ?") // every night at 23h59
+    fun save() {
         repository.save(Facebook(date = LocalDate.now(), favorites = favorites, followers = followers))
     }
 
