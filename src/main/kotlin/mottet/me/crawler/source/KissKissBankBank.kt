@@ -40,6 +40,9 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
         return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
 
+    @RequestMapping("/collect/month/total")
+    fun totalCollectCurrentMonth() = service.totalCollectCurrentMonth()
+
     @RequestMapping("/goal/month")
     fun currentMonthGoal() = service.goal()
 
