@@ -61,7 +61,7 @@ class IndiegogoService(val repository: IndiegogoRepository) {
 
     fun goal() = goal
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
-    fun totalCollectCurrentMonth() =  currentMonthByDay().map { it.collect }.sum()
+    fun totalCollectCurrentMonth() = currentMonthByDay().map { it.collect }.sum()
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
     fun backersCurrentMonthByDay() = currentMonthByDay().map { it.date to it.backers }.toMap()
     fun currentBackers() = fetch("contributions_count")
@@ -83,7 +83,10 @@ class IndiegogoService(val repository: IndiegogoRepository) {
     private fun currentMonthByDay(): List<Indiegogo> {
         val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
         val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
-        val currentMonthData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
+        val currentMonthData = repository
+                .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
+                // TODO: fix next month
+                .map { Indiegogo(it.id, it.date, it.collect - 393_136, it.backers) }
         return (1..lastDayOfCurrentMonth.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             currentMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
