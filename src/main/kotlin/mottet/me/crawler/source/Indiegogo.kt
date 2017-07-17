@@ -1,72 +1,90 @@
 package mottet.me.crawler.source
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import mottet.me.crawler.now
+import mottet.me.crawler.toReadableDate
 import mottet.me.crawler.toReadableNumber
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.repository.CrudRepository
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 
 @RestController
 @RequestMapping("/indiegogo")
-class IndiegogoController(val repository: IndiegogoRepository) {
-    private var collect = 0
-    private var backers = 0
-    private var lastUpdated = now()
+class IndiegogoController(val service: IndiegogoService) {
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"${collect.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\" }"
+    fun collect() = "{\"current\" : \"${service.currentCollect().toReadableNumber()}\", \"lastUpdated\" :" +
+            " \"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/backers")
-    fun backers() = "{\"current\" : \"${backers.toReadableNumber()}\", \"lastUpdated\" :  \"$lastUpdated\"}"
+    fun backers() = "{\"current\" : \"${service.currentBackers().toReadableNumber()}\", \"lastUpdated\" : " +
+            " \"${service.lastUpdateDateTime().toReadableDate()}\"}"
 
     @RequestMapping("/collect/month")
     fun currentMonthByDayCollect(): Graph {
-        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
-        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
-        val labelsAndData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
-                .map { it.date to it.collect }
-                .toMap()
-        return Graph(labelsAndData.keys.map { it.dayOfMonth.toString() }, labelsAndData.values)
+        val collects = service.totalCollectCurrentMonth()
+        return Graph(collects.keys.map { it.dayOfMonth.toString() }, collects.values)
     }
 
     @RequestMapping("/backers/month")
     fun currentMonthByDayBackers(): Graph {
-        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
-        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
-        val labelsAndData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
-                .map { it.date to it.backers }
-                .toMap()
-        return Graph(labelsAndData.keys.map { it.dayOfMonth.toString() }, labelsAndData.values)
+        val backers = service.totalBackersCurrentMonth()
+        return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
+}
 
-    @Scheduled(fixedDelay = 350_000, initialDelay = 0)
-    final fun fetch() {
-        collect = fetchCollect()
-        backers = fetchBackers()
-        lastUpdated = now()
-    }
+@Service
+class IndiegogoService(val repository: IndiegogoRepository) {
+    private var collect = 0
+    private var backers = 0
+    private var lastUpdated = LocalDateTime.now()!!
+
+    fun totalCollectCurrentMonth() = currentMonth().map { it.date to it.collect }.toMap()
+    fun totalBackersCurrentMonth() = currentMonth().map { it.date to it.backers }.toMap()
+    fun currentBackers() = fetch("contributions_count")
+    fun currentCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
+    fun lastUpdateDateTime() = lastUpdated
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveMetric() {
         repository.save(Indiegogo(date = LocalDate.now(), collect = collect, backers = backers))
     }
 
-    private fun fetchBackers() = fetch("contributions_count")
-    private fun fetchCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
+    @Scheduled(fixedDelay = 350_000, initialDelay = 0)
+    final fun fetch() {
+        collect = currentCollect()
+        backers = currentBackers()
+        lastUpdated = LocalDateTime.now()
+    }
+
+    private fun currentMonth(): List<Indiegogo> {
+        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
+        val currentMonthData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
+        return (0..lastDayOfCurrentMonth.dayOfMonth).map {
+            val currentDay = firstDayOfCurrentMonth.plusDays(it.toLong())
+            currentMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
+        }
+    }
+
     private fun fetch(fieldName: String) = RestTemplate().getForObject("https://api.indiegogo.com/1" +
             ".1/campaigns/1918821" +
             ".json?api_token=16e63457e7a24c06d39b40b52c0df273098cab82ccd3d4abaafd1a9c7a4edfe7", Response::class.java)
             .response[fieldName].toString().toInt()
+}
+
+interface IndiegogoRepository : CrudRepository<Indiegogo, String> {
+    fun findByDateBetween(from: LocalDate, to: LocalDate): List<Indiegogo>
 }
 
 data class Graph(val labels: Collection<String>, val data: Collection<Int>)
@@ -80,6 +98,3 @@ class Indiegogo(@Id val id: String = UUID.randomUUID().toString(),
                 val collect: Int,
                 val backers: Int)
 
-interface IndiegogoRepository : CrudRepository<Indiegogo, String> {
-    fun findByDateBetween(from: LocalDate, to: LocalDate): List<Indiegogo>
-}
