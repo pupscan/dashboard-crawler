@@ -35,4 +35,4 @@ fun main(args: Array<String>) {
 fun Int.toReadableNumber() = DecimalFormat("#,###", DecimalFormatSymbols(Locale.FRANCE)).format(this)!!
 fun now() = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
 fun LocalDateTime.toReadableDate() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
-
+fun Int.euroToDollar() = this * 1.14785
