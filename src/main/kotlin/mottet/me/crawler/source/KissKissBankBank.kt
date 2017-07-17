@@ -30,29 +30,35 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
 
     @RequestMapping("/collect/month")
     fun currentMonthByDayCollect(): Graph {
-        val collects = service.totalCollectCurrentMonth()
+        val collects = service.collectCurrentMonthByDay()
         return Graph(collects.keys.map { it.dayOfMonth.toString() }, collects.values)
     }
 
     @RequestMapping("/backers/month")
     fun currentMonthByDayBackers(): Graph {
-        val backers = service.totalBackersCurrentMonth()
+        val backers = service.backersCurrentMonthByDay()
         return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
 
     @RequestMapping("/goal/month")
-    fun currentMonthGoal() = 10000
+    fun currentMonthGoal() = service.goal()
 
+    @RequestMapping("/reached/month")
+    fun currentReachedGoal() = service.goalReached()
 }
 
 @Service
 class KissKissBankBankService(val repository: KissKissBankBankRepository) {
+    private val goal = 10000
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
-    fun totalCollectCurrentMonth() = currentMonth().map { it.date to it.collect }.toMap()
-    fun totalBackersCurrentMonth() = currentMonth().map { it.date to it.backers }.toMap()
+    fun goal() = goal
+    fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
+    fun totalCollectCurrentMonth() =  currentMonthByDay().map { it.collect }.sum()
+    fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
+    fun backersCurrentMonthByDay() = currentMonthByDay().map { it.date to it.backers }.toMap()
     fun currentBackers() = fetch(".bankers").replace(" ", "").toInt()
     fun currentCollect() = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
     fun lastUpdateDateTime() = lastUpdated
@@ -69,7 +75,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
         lastUpdated = LocalDateTime.now()
     }
 
-    private fun currentMonth(): List<KissKissBankBank> {
+    private fun currentMonthByDay(): List<KissKissBankBank> {
         val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
         val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
         val currentMonthData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
