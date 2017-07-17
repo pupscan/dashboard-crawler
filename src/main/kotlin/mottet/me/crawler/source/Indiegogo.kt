@@ -56,7 +56,7 @@ class IndiegogoService(val repository: IndiegogoRepository) {
     fun lastUpdateDateTime() = lastUpdated
 
     @Scheduled(cron = "0 59 23 * * ?")
-    fun saveMetric() {
+    fun saveIndiegogoData() {
         repository.save(Indiegogo(date = LocalDate.now(), collect = collect, backers = backers))
     }
 
@@ -69,10 +69,10 @@ class IndiegogoService(val repository: IndiegogoRepository) {
 
     private fun currentMonth(): List<Indiegogo> {
         val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
-        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
-        val currentMonthData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth)
-        return (0..lastDayOfCurrentMonth.dayOfMonth).map {
-            val currentDay = firstDayOfCurrentMonth.plusDays(it.toLong())
+        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
+        val currentMonthData = repository.findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
+        return (1..lastDayOfCurrentMonth.dayOfMonth).map {
+            val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             currentMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
         }
     }

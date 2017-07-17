@@ -33,7 +33,7 @@ class TwitterController(val repository: TwitterRepository) {
         lastUpdated = now()
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 59 23 * * ?")
     fun saveMetric() {
         repository.save(Twitter(date = LocalDate.now(), favorites = favorites, followers = followers))
     }
