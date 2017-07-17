@@ -52,6 +52,7 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
 
 @Service
 class KissKissBankBankService(val repository: KissKissBankBankRepository) {
+    private val difference = 7_738
     private val goal = 10000
     private var collect = 0
     private var backers = 0
@@ -59,7 +60,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
 
     fun goal() = goal
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
-    fun totalCollectCurrentMonth() = currentMonthByDay().map { it.collect }.sum()
+    fun totalCollectCurrentMonth() = currentCollect() - difference
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
     fun backersCurrentMonthByDay() = currentMonthByDay().map { it.date to it.backers }.toMap()
     fun currentBackers() = fetch(".bankers").replace(" ", "").toInt()
@@ -84,7 +85,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
         val currentMonthData = repository
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
                 // TODO: fix next month
-                .map { KissKissBankBank(it.id, it.date, it.collect - 7_738, it.backers) }
+                .map { KissKissBankBank(it.id, it.date, it.collect - difference, it.backers) }
         return (1..lastDayOfCurrentMonth.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             currentMonthData.find { it.date == currentDay } ?: KissKissBankBank(date = currentDay, backers = 0, collect = 0)
