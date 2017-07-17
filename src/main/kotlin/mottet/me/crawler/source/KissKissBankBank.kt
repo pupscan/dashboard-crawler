@@ -39,6 +39,10 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
         val backers = service.totalBackersCurrentMonth()
         return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
+
+    @RequestMapping("/goal/month")
+    fun currentMonthGoal() = 10000
+
 }
 
 @Service

@@ -41,6 +41,9 @@ class IndiegogoController(val service: IndiegogoService) {
         val backers = service.totalBackersCurrentMonth()
         return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
+
+    @RequestMapping("/goal/month")
+    fun currentMonthGoal() = 40000
 }
 
 @Service
