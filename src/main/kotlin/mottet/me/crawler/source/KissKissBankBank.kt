@@ -52,7 +52,7 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
 
 @Service
 class KissKissBankBankService(val repository: KissKissBankBankRepository) {
-    private val difference = 7_738
+    private val difference = 7_599
     private val goal = 10000
     private var collect = 0
     private var backers = 0
