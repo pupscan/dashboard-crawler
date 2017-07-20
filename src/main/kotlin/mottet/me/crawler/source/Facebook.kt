@@ -35,7 +35,6 @@ class FacebookService(val repository: FacebookRepository) {
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
-
     fun currentFavorites() = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun currentFollowers() = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun lastUpdateDateTime() = lastUpdated
