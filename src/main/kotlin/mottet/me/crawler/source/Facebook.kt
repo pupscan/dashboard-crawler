@@ -1,6 +1,5 @@
 package mottet.me.crawler.source
 
-import mottet.me.crawler.now
 import mottet.me.crawler.toReadableDate
 import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
@@ -41,7 +40,7 @@ class FacebookService(val repository: FacebookRepository) {
     fun currentFavorites() = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun currentFollowers() = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun lastUpdateDateTime() = lastUpdated
-    fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.followers }
+    fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.followers } + Facebook(date = lastUpdateDateTime().toLocalDate(), favorites = currentFavorites(), followers = currentFollowers())
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
