@@ -28,10 +28,14 @@ class TwitterController(val service: TwitterService) {
     fun followers() = "{\"current\" : \"${service.currentFollowers().toReadableNumber()}\", \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
+
+    @RequestMapping("/last")
+    fun last30Days() = service.last30days()
+
 }
 
 @Service
-class TwitterService(val repository: TwitterRepository){
+class TwitterService(val repository: TwitterRepository) {
     private var favorites = 0
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
@@ -39,6 +43,7 @@ class TwitterService(val repository: TwitterRepository){
     fun currentLikes() = fetch("[data-nav='favorites'] .ProfileNav-value").toInt()
     fun currentFollowers() = fetch("[data-nav='followers'] .ProfileNav-value").toInt()
     fun lastUpdateDateTime() = lastUpdated
+    fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.followers }
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
@@ -64,4 +69,7 @@ class Twitter(@Id val id: String = UUID.randomUUID().toString(),
               val favorites: Int,
               val followers: Int)
 
-interface TwitterRepository : CrudRepository<Twitter, String>
+interface TwitterRepository : CrudRepository<Twitter, String> {
+    fun findTop30ByOrderByDateDesc(): List<Twitter>
+
+}
