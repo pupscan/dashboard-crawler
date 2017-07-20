@@ -27,6 +27,9 @@ class FacebookController(val service: FacebookService) {
     @RequestMapping("/followers")
     fun followers() = "{\"current\" : \"${service.currentFollowers().toReadableNumber()}\", \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
+
+    @RequestMapping("/last")
+    fun last30Days() = service.last30days()
 }
 
 @Service
@@ -38,6 +41,7 @@ class FacebookService(val repository: FacebookRepository) {
     fun currentFavorites() = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun currentFollowers() = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
     fun lastUpdateDateTime() = lastUpdated
+    fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.followers }
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
@@ -63,4 +67,6 @@ class Facebook(@Id val id: String = UUID.randomUUID().toString(),
                val favorites: Int,
                val followers: Int)
 
-interface FacebookRepository : CrudRepository<Facebook, String>
+interface FacebookRepository : CrudRepository<Facebook, String> {
+    fun findTop30ByOrderByDateDesc(): List<Facebook>
+}

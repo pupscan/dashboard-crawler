@@ -28,7 +28,6 @@ class TwitterController(val service: TwitterService) {
     fun followers() = "{\"current\" : \"${service.currentFollowers().toReadableNumber()}\", \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
-
     @RequestMapping("/last")
     fun last30Days() = service.last30days()
 
@@ -71,5 +70,4 @@ class Twitter(@Id val id: String = UUID.randomUUID().toString(),
 
 interface TwitterRepository : CrudRepository<Twitter, String> {
     fun findTop30ByOrderByDateDesc(): List<Twitter>
-
 }
