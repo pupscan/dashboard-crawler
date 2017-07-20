@@ -31,6 +31,12 @@ class IndiegogoController(val service: IndiegogoService) {
             " \"${service.lastUpdateDateTime().toReadableDate()}\"}"
 
     @RequestMapping("/collect/month")
+    fun aggregateMonthByDayCollect(): Graph {
+        val collects = service.collectAggregateMonthByDay()
+        return Graph(collects.keys.map { it.dayOfMonth.toString() }, collects.values)
+    }
+
+    @RequestMapping("/collect/month/current")
     fun currentMonthByDayCollect(): Graph {
         val collects = service.collectCurrentMonthByDay()
         return Graph(collects.keys.map { it.dayOfMonth.toString() }, collects.values)
@@ -38,7 +44,7 @@ class IndiegogoController(val service: IndiegogoService) {
 
     @RequestMapping("/backers/month")
     fun currentMonthByDayBackers(): Graph {
-        val backers = service.backersCurrentMonthByDay()
+        val backers = service.backersAggregateMonthByDay()
         return Graph(backers.keys.map { it.dayOfMonth.toString() }, backers.values)
     }
 
@@ -64,7 +70,8 @@ class IndiegogoService(val repository: IndiegogoRepository) {
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
     fun totalCollectCurrentMonth() = currentCollect() - difference
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
-    fun backersCurrentMonthByDay() = currentMonthByDay().map { it.date to it.backers }.toMap()
+    fun collectAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
+    fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun currentBackers() = fetch("contributions_count")
     fun currentCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
     fun lastUpdateDateTime() = lastUpdated
@@ -82,6 +89,24 @@ class IndiegogoService(val repository: IndiegogoRepository) {
     }
 
     private fun currentMonthByDay(): List<Indiegogo> {
+        val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
+        val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
+        val currentMonthData = repository
+                .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
+        val customMonthData = currentMonthData
+                .mapIndexed { index, it ->
+                    Indiegogo(it.id,
+                            it.date,
+                            it.collect - (currentMonthData.getOrNull(index - 1)?.collect ?: it.collect),
+                            it.backers)
+                }
+        return (1..lastDayOfCurrentMonth.dayOfMonth).map {
+            val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
+            customMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
+        }
+    }
+
+    private fun aggregateMonthByDay(): List<Indiegogo> {
         val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
         val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
         val currentMonthData = repository
