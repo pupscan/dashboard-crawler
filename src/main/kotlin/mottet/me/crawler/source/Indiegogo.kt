@@ -60,7 +60,7 @@ class IndiegogoController(val service: IndiegogoService) {
 
 @Service
 class IndiegogoService(val repository: IndiegogoRepository) {
-    private val difference = 393_136
+    private val difference = 376_256
     private val goal = 40000
     private var collect = 0
     private var backers = 0
@@ -112,9 +112,10 @@ class IndiegogoService(val repository: IndiegogoRepository) {
         val currentMonthData = repository
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
                 // TODO: fix next month
-                .map { Indiegogo(it.id, it.date, it.collect - difference, it.backers) }
-        return (1..lastDayOfCurrentMonth.dayOfMonth).map {
-            val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
+                .map { Indiegogo(it.id, it.date, it.collect - difference, it.backers) }.toMutableList()
+        currentMonthData.add(Indiegogo(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - difference, backers = currentBackers()))
+        return (1L..lastDayOfCurrentMonth.dayOfMonth).map {
+            val currentDay = firstDayOfCurrentMonth.plusDays(it - 1)
             currentMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
         }
     }
