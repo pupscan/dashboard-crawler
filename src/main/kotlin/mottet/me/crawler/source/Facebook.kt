@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.repository.CrudRepository
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
@@ -28,6 +29,7 @@ class FacebookController(val service: FacebookService) {
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 }
 
+@Service
 class FacebookService(val repository: FacebookRepository) {
     private var favorites = 0
     private var followers = 0
