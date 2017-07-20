@@ -88,7 +88,7 @@ class IndiegogoService(val repository: IndiegogoRepository) {
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
                 // TODO: fix next month
                 .map { Indiegogo(it.id, it.date, it.collect - difference, it.backers) }.toMutableList()
-        currentMonthData.add(Indiegogo(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect(), backers = currentBackers()))
+        currentMonthData.add(Indiegogo(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - difference, backers = currentBackers()))
         return (1L..lastDayOfCurrentMonth.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1)
             currentMonthData.find { it.date == currentDay } ?: Indiegogo(date = currentDay, backers = 0, collect = 0)
