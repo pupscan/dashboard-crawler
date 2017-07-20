@@ -1,8 +1,6 @@
 package mottet.me.crawler.source
 
-import mottet.me.crawler.now
 import mottet.me.crawler.toReadableDate
-import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -21,11 +19,11 @@ import java.util.*
 class TwitterController(val service: TwitterService) {
 
     @RequestMapping("/favorites")
-    fun favorite() = "{\"current\" : \"${service.currentLikes().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun favorite() = "{\"current\" : ${service.currentLikes()}, \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/followers")
-    fun followers() = "{\"current\" : \"${service.currentFollowers().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun followers() = "{\"current\" : ${service.currentFollowers()}, \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/last")

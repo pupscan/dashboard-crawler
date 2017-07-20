@@ -20,11 +20,11 @@ import java.util.*
 class FacebookController(val service: FacebookService) {
 
     @RequestMapping("/favorites")
-    fun favorite() = "{\"current\" : \"${service.currentFavorites().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun favorite() = "{\"current\" : ${service.currentFavorites()}, \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/followers")
-    fun followers() = "{\"current\" : \"${service.currentFollowers().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun followers() = "{\"current\" : ${service.currentFollowers()}, \"lastUpdated\" : " +
             "\"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/last")
