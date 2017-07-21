@@ -66,15 +66,15 @@ class IndiegogoService(val repository: IndiegogoRepository) {
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
+    fun currentBackers() = backers
+    fun currentCollect() = collect
+    fun lastUpdateDateTime() = lastUpdated
     fun goal() = goal
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
     fun totalCollectCurrentMonth() = currentCollect() - difference
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
     fun collectAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
-    fun currentBackers() = fetch("contributions_count")
-    fun currentCollect() = fetch("collected_funds") + fetch("forever_funding_collected_funds")
-    fun lastUpdateDateTime() = lastUpdated
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveIndiegogoData() {
@@ -83,8 +83,8 @@ class IndiegogoService(val repository: IndiegogoRepository) {
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        collect = currentCollect()
-        backers = currentBackers()
+        collect = fetch("collected_funds") + fetch("forever_funding_collected_funds")
+        backers = fetch("contributions_count")
         lastUpdated = LocalDateTime.now()
     }
 

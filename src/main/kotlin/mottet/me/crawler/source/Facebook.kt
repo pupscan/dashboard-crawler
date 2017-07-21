@@ -1,7 +1,6 @@
 package mottet.me.crawler.source
 
 import mottet.me.crawler.toReadableDate
-import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -37,15 +36,15 @@ class FacebookService(val repository: FacebookRepository) {
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
-    fun currentFavorites() = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
-    fun currentFollowers() = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
+    fun currentFavorites() = favorites
+    fun currentFollowers() = followers
     fun lastUpdateDateTime() = lastUpdated
     fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.favorites } + currentFavorites()
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
-        favorites = currentFavorites()
-        followers = currentFollowers()
+        favorites = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
+        followers = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
         lastUpdated = LocalDateTime.now()
     }
 

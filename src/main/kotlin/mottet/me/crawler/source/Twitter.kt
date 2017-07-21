@@ -37,15 +37,15 @@ class TwitterService(val repository: TwitterRepository) {
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
-    fun currentLikes() = fetch("[data-nav='favorites'] .ProfileNav-value").toInt()
-    fun currentFollowers() = fetch("[data-nav='followers'] .ProfileNav-value").toInt()
+    fun currentLikes() = favorites
+    fun currentFollowers() = followers
     fun lastUpdateDateTime() = lastUpdated
     fun last30days() = repository.findTop30ByOrderByDateDesc().map { it.followers } + currentFollowers()
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
-        favorites = currentLikes()
-        followers = currentFollowers()
+        favorites = fetch("[data-nav='favorites'] .ProfileNav-value").toInt()
+        followers = fetch("[data-nav='followers'] .ProfileNav-value").toInt()
         lastUpdated = LocalDateTime.now()
     }
 

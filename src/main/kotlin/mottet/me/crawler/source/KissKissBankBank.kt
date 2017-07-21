@@ -64,15 +64,16 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
+    fun currentBackers() = backers
+    fun currentCollect() = collect
+    fun lastUpdateDateTime() = lastUpdated
     fun goal() = goal
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
     fun totalCollectCurrentMonth() = currentCollect() - difference
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
     fun collectAggregateMonthBydDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
+
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
-    fun currentBackers() = fetch(".bankers").replace(" ", "").toInt()
-    fun currentCollect() = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
-    fun lastUpdateDateTime() = lastUpdated
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveIndiegogoData() {
@@ -81,8 +82,8 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        collect = currentCollect()
-        backers = currentBackers()
+        collect = fetch(".bankers").replace(" ", "").toInt()
+        backers = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
         lastUpdated = LocalDateTime.now()
     }
 
@@ -122,7 +123,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
         }
     }
 
-    private fun fetch(css: String) = Jsoup.connect("https://www.kisskissbankbank.com/pup-le-mini-scanner-connecte-le-plus-rapide-du-monde?ref=selection")
+    private fun fetch(css: String) = Jsoup.connect("https://www.kisskissbankbank.com/fr/projects/pup-le-mini-scanner-connecte-le-plus-rapide-du-monde/wall")
             .get()
             .select(css)
             .text()!!
