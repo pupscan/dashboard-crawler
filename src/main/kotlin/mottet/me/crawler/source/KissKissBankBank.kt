@@ -116,7 +116,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
                 // TODO: fix next month
                 .map { KissKissBankBank(it.id, it.date, it.collect - difference, it.backers) }.toMutableList()
         currentMonthData.add(KissKissBankBank(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - difference, backers = currentBackers()))
-        return (1..lastDayOfCurrentMonth.dayOfMonth).map {
+        return (1L..currentMonthData.last().date.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             currentMonthData.find { it.date == currentDay } ?: KissKissBankBank(date = currentDay, backers = 0, collect = 0)
         }
