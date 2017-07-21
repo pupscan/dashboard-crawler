@@ -1,7 +1,6 @@
 package mottet.me.crawler.source
 
 import mottet.me.crawler.toReadableDate
-import mottet.me.crawler.toReadableNumber
 import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -21,11 +20,11 @@ import java.util.*
 class KissKissBankBankController(val service: KissKissBankBankService) {
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"${service.currentCollect().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun collect() = "{\"current\" : ${service.currentCollect()}, \"lastUpdated\" : " +
             " \"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/backers")
-    fun backers() = "{\"current\" : \"${service.currentBackers().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun backers() = "{\"current\" : ${service.currentBackers()}, \"lastUpdated\" : " +
             " \"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/collect/month")

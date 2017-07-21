@@ -2,7 +2,6 @@ package mottet.me.crawler.source
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import mottet.me.crawler.toReadableDate
-import mottet.me.crawler.toReadableNumber
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -23,11 +22,11 @@ import java.util.*
 class IndiegogoController(val service: IndiegogoService) {
 
     @RequestMapping("/collect")
-    fun collect() = "{\"current\" : \"${service.currentCollect().toReadableNumber()}\", \"lastUpdated\" :" +
+    fun collect() = "{\"current\" : ${service.currentCollect()}, \"lastUpdated\" :" +
             " \"${service.lastUpdateDateTime().toReadableDate()}\" }"
 
     @RequestMapping("/backers")
-    fun backers() = "{\"current\" : \"${service.currentBackers().toReadableNumber()}\", \"lastUpdated\" : " +
+    fun backers() = "{\"current\" : ${service.currentBackers()}, \"lastUpdated\" : " +
             " \"${service.lastUpdateDateTime().toReadableDate()}\"}"
 
     @RequestMapping("/collect/month")
