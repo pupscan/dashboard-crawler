@@ -60,7 +60,7 @@ class IndiegogoController(val service: IndiegogoService) {
 @Service
 class IndiegogoService(val repository: IndiegogoRepository) {
     private val difference = 376_256
-    private val goal = 40000
+    private val goal = 30000
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
