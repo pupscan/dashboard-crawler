@@ -82,8 +82,8 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        collect = fetch(".bankers").replace(" ", "").toInt()
-        backers = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
+        backers = fetch(".bankers").replace(" ", "").toInt()
+        collect = fetch(".collected_amount").replace("€", "").replace(" ", "").toInt()
         lastUpdated = LocalDateTime.now()
     }
 
