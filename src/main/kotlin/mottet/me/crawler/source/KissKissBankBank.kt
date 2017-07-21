@@ -97,7 +97,10 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
                             it.date,
                             it.collect - (currentMonthData.getOrNull(index - 1)?.collect ?: it.collect),
                             it.backers)
-                }
+                } + KissKissBankBank(
+                date = lastUpdateDateTime().toLocalDate(),
+                collect = currentCollect() - currentMonthData.last().collect,
+                backers = currentBackers())
         return (1..lastDayOfCurrentMonth.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             customMonthData.find { it.date == currentDay } ?: KissKissBankBank(date = currentDay, backers = 0, collect = 0)
