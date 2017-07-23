@@ -1,7 +1,7 @@
 package mottet.me.crawler.source
 
+import facebook4j.FacebookFactory
 import mottet.me.crawler.toReadableDate
-import org.jsoup.Jsoup
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -35,6 +35,10 @@ class FacebookService(val repository: FacebookRepository) {
     private var favorites = 0
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
+    private val facebook = FacebookFactory().instance.apply {
+        setOAuthAppId("896361467138797", "8f2ce15613d4d8d8d70212de6a2b944b")
+        oAuthAccessToken = oAuthAppAccessToken
+    }!!
 
     fun currentFavorites() = favorites
     fun currentFollowers() = followers
@@ -43,8 +47,10 @@ class FacebookService(val repository: FacebookRepository) {
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
-        favorites = fetch("div:eq(2)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
-        followers = fetch("div:eq(3)._2pi9._2pi2 ._4bl9  div").replace("[^\\d]".toRegex(), "").toInt()
+        favorites = facebook.callGetAPI("v2.10/1757878341134060", mapOf("fields" to "fan_count"))
+                .asJSONObject()
+                .getInt("fan_count")
+        followers = favorites
         lastUpdated = LocalDateTime.now()
     }
 
@@ -53,10 +59,6 @@ class FacebookService(val repository: FacebookRepository) {
         repository.save(Facebook(date = LocalDate.now(), favorites = favorites, followers = followers))
     }
 
-    private fun fetch(css: String) = Jsoup.connect("https://fr-fr.facebook.com/pupscan/")
-            .get()
-            .select(css)
-            .text()!!
 }
 
 @Document
