@@ -13,4 +13,5 @@ To run the application you need to set variable environements:
 - TWITTER_TOKEN_SECRET
 - INDIEGOGO_APP_TOKEN
 
-To set on Mac OSX run the command `launchctl setenv FACEBOOK_APP_SECRET "your_facebook_secret"`
+To set on Mac OSX run the command `launchctl setenv FACEBOOK_APP_SECRET "your_facebook_secret"` 
+**!!! DONT FORGET TO RESTART YOUR INTELLIJ AFTER SETTING YOUR VARIABLE !!!**
