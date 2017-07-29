@@ -1,0 +1,21 @@
+metric-back:
+  image: pupscan/dashboard-crawler:latest
+  container_name: metric-back
+  restart: unless-stopped
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+  environment:
+    - FACEBOOK_APP_ID=TO_COMPLETE
+    - FACEBOOK_APP_SECRET=TO_COMPLETE
+    - TWITTER_APP_ID=TO_COMPLETE
+    - TWITTER_APP_SECRET=TO_COMPLETE
+    - INDIEGOGO_APP_TOKEN=TO_COMPLETE
+  links:
+    - mongo:mongo
+
+mongo:
+   image: mongo:latest
+   container_name: metric-mongodb
+   restart: unless-stopped
+   volumes:
+     - ./data/mongo:/data/db

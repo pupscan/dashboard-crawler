@@ -33,6 +33,12 @@ fun main(args: Array<String>) {
  * Util
  */
 fun Int.toReadableNumber() = DecimalFormat("#,###", DecimalFormatSymbols(Locale.FRANCE)).format(this)!!
-fun now() = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
-fun LocalDateTime.toReadableDate() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!
+
 fun Int.euroToDollar() = this * 1.14785
+
+fun String.safeDisplaySecret(): String {
+    if (this.isBlank()) return ""
+    return "X".repeat(this.length - 3) + this.substring(this.length - 3)
+}
+
+fun LocalDateTime.toReadableDate() = this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))!!

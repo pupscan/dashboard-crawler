@@ -1,7 +1,10 @@
 package mottet.me.crawler.source
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import mottet.me.crawler.safeDisplaySecret
 import mottet.me.crawler.toReadableDate
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -58,12 +61,19 @@ class IndiegogoController(val service: IndiegogoService) {
 }
 
 @Service
-class IndiegogoService(val repository: IndiegogoRepository) {
+class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: String,
+                       val repository: IndiegogoRepository) {
+    private val logger = LoggerFactory.getLogger(IndiegogoService::class.java)!!
+
     private val difference = 376_256
     private val goal = 30000
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
+
+    init {
+        logger.info("Connect to Indiegogo token=${indiegogoToken.safeDisplaySecret()}")
+    }
 
     fun currentBackers() = backers
     fun currentCollect() = collect
@@ -124,7 +134,7 @@ class IndiegogoService(val repository: IndiegogoRepository) {
 
     private fun fetch(fieldName: String) = RestTemplate().getForObject("https://api.indiegogo.com/1" +
             ".1/campaigns/1918821" +
-            ".json?api_token=16e63457e7a24c06d39b40b52c0df273098cab82ccd3d4abaafd1a9c7a4edfe7", Response::class.java)
+            ".json?api_token=$indiegogoToken", Response::class.java)
             .response[fieldName].toString().toInt()
 }
 
