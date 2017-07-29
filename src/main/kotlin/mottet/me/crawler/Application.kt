@@ -33,7 +33,6 @@ fun main(args: Array<String>) {
  * Util
  */
 fun Int.toReadableNumber() = DecimalFormat("#,###", DecimalFormatSymbols(Locale.FRANCE)).format(this)!!
-
 fun Int.euroToDollar() = this * 1.14785
 
 fun String.safeDisplaySecret(): String {

@@ -1,7 +1,9 @@
 package mottet.me.crawler.source
 
+import mottet.me.crawler.safeDisplaySecret
 import mottet.me.crawler.toReadableDate
-import org.jsoup.Jsoup
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -10,6 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import twitter4j.TwitterFactory
+import twitter4j.conf.ConfigurationBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -32,7 +36,24 @@ class TwitterController(val service: TwitterService) {
 }
 
 @Service
-class TwitterService(val repository: TwitterRepository) {
+class TwitterService(@Value("\${twitter.app-id}") val twitterAppId: String,
+                     @Value("\${twitter.app-secret}") val twitterAppSecret: String,
+                     @Value("\${twitter.token-id}") val twitterTokenId: String,
+                     @Value("\${twitter.token-secret}") val twitterTokenSecret: String,
+                     val repository: TwitterRepository) {
+    private val logger = LoggerFactory.getLogger(TwitterService::class.java)!!
+
+    private val confTwitter = ConfigurationBuilder().apply {
+        logger.info("Connect to Twitter with appId=${twitterAppId.safeDisplaySecret()} " +
+                "appSecret=${twitterAppSecret.safeDisplaySecret()} +" +
+                "tokenId=${twitterTokenId.safeDisplaySecret()} " +
+                "tokenSecret=${twitterTokenSecret.safeDisplaySecret()}")
+        setOAuthConsumerKey(twitterAppId)
+        setOAuthConsumerSecret(twitterAppSecret)
+        setOAuthAccessToken(twitterTokenId)
+        setOAuthAccessTokenSecret(twitterTokenSecret)
+    }.build()
+    private val twitter = TwitterFactory(confTwitter).instance
     private var favorites = 0
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
@@ -44,8 +65,8 @@ class TwitterService(val repository: TwitterRepository) {
 
     @Scheduled(fixedDelay = 700_000, initialDelay = 0)
     fun fetch() {
-        favorites = fetch("[data-nav='favorites'] .ProfileNav-value").toInt()
-        followers = fetch("[data-nav='followers'] .ProfileNav-value").toInt()
+        favorites = twitter.users().showUser(781895128361345024).favouritesCount
+        followers = twitter.users().showUser(781895128361345024).followersCount
         lastUpdated = LocalDateTime.now()
     }
 
@@ -53,11 +74,6 @@ class TwitterService(val repository: TwitterRepository) {
     fun saveTwitterData() {
         repository.save(Twitter(date = LocalDate.now(), favorites = favorites, followers = followers))
     }
-
-    private fun fetch(css: String) = Jsoup.connect("https://twitter.com/pupscan")
-            .get()
-            .select(css)
-            .text()!!
 }
 
 @Document

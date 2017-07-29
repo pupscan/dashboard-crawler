@@ -43,7 +43,7 @@ class FacebookService(@Value("\${facebook.app-id}") val facebookAppId: String,
     private var followers = 0
     private var lastUpdated = LocalDateTime.now()!!
     private val facebook = FacebookFactory().instance.apply {
-        logger.info("Connect to Facebook with appId=$facebookAppId.sa, appSecret=${facebookAppSecret.safeDisplaySecret()}")
+        logger.info("Connect to Facebook with appId=$facebookAppId, appSecret=${facebookAppSecret.safeDisplaySecret()}")
         setOAuthAppId(facebookAppId, facebookAppSecret)
         oAuthAccessToken = oAuthAppAccessToken
     }!!
