@@ -73,9 +73,8 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
     fun collectAggregateMonthBydDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun totalCollectAtTheBeginningOfCurrentMonth() = repository
-            .findByDateBetween(LocalDate.ofYearDay(2017, 1), LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
-            .map { it.collect }
-            .sum()
+            .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
+            .collect
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveIndiegogoData() {
@@ -117,7 +116,6 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
         val totalCollectAtTheBeginningOfCurrentMonth = totalCollectAtTheBeginningOfCurrentMonth()
         val currentMonthData = repository
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
-                // TODO: fix next month
                 .map { KissKissBankBank(it.id, it.date, it.collect - totalCollectAtTheBeginningOfCurrentMonth, it.backers) }.toMutableList()
         currentMonthData.add(KissKissBankBank(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth, backers = currentBackers()))
         return (1L..currentMonthData.last().date.dayOfMonth).map {
@@ -135,6 +133,8 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
 
 interface KissKissBankBankRepository : CrudRepository<KissKissBankBank, String> {
     fun findByDateBetween(from: LocalDate, to: LocalDate?): List<KissKissBankBank>
+    fun findByDate(date: LocalDate): KissKissBankBank
+
 }
 
 @Document

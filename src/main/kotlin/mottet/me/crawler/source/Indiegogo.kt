@@ -65,7 +65,6 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
                        val repository: IndiegogoRepository) {
     private val logger = LoggerFactory.getLogger(IndiegogoService::class.java)!!
 
-//    private val difference = 376_256
     private val goal = 45000
     private var collect = 0
     private var backers = 0
@@ -85,9 +84,8 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
     fun collectAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun totalCollectAtTheBeginningOfCurrentMonth() = repository
-            .findByDateBetween(LocalDate.ofYearDay(2017, 1), LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
-            .map { it.collect }
-            .sum()
+            .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
+            .collect
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveIndiegogoData() {
@@ -128,7 +126,6 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
         val totalCollectAtTheBeginningOfCurrentMonth = totalCollectAtTheBeginningOfCurrentMonth()
         val currentMonthData = repository
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
-                // TODO: fix next month
                 .map { Indiegogo(it.id, it.date, it.collect - totalCollectAtTheBeginningOfCurrentMonth, it.backers) }.toMutableList()
         currentMonthData.add(Indiegogo(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth, backers = currentBackers()))
         return (1L..currentMonthData.last().date.dayOfMonth).map {
@@ -145,6 +142,7 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
 
 interface IndiegogoRepository : CrudRepository<Indiegogo, String> {
     fun findByDateBetween(from: LocalDate, to: LocalDate): List<Indiegogo>
+    fun findByDate(date: LocalDate): Indiegogo
 }
 
 data class Graph(val labels: Collection<String>, val data: Collection<Int>)
