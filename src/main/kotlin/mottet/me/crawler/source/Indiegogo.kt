@@ -66,7 +66,7 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
     private val logger = LoggerFactory.getLogger(IndiegogoService::class.java)!!
 
 //    private val difference = 376_256
-    private val goal = 30000
+    private val goal = 45000
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
@@ -85,7 +85,7 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
     fun collectAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun totalCollectAtTheBeginningOfCurrentMonth() = repository
-            .findByDateBetween(LocalDate.MIN, LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
+            .findByDateBetween(LocalDate.ofYearDay(2017, 1), LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
             .map { it.collect }
             .sum()
 

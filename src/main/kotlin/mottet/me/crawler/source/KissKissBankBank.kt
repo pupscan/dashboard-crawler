@@ -58,7 +58,7 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
 @Service
 class KissKissBankBankService(val repository: KissKissBankBankRepository) {
 //    private val difference = 7_599
-    private val goal = 10000
+    private val goal = 5000
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
@@ -73,7 +73,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
     fun collectAggregateMonthBydDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun totalCollectAtTheBeginningOfCurrentMonth() = repository
-            .findByDateBetween(LocalDate.MIN, LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
+            .findByDateBetween(LocalDate.ofYearDay(2017, 1), LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
             .map { it.collect }
             .sum()
 
