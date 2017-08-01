@@ -25,6 +25,6 @@ class CrowdfundingController(val service: CrowdfundingService) {
 class CrowdfundingService(val indiegogoService: IndiegogoService, val kissBankBankService: KissKissBankBankService) {
     fun totalFund() = indiegogoService.currentCollect() + kissBankBankService.currentCollect().euroToDollar()
     fun totalBackers() = indiegogoService.currentBackers() + kissBankBankService.currentBackers()
-    fun totalMonthFund() = indiegogoService.totalCollectCurrentMonth() + kissBankBankService.totalCollectCurrentMonth().euroToDollar()
+    fun totalMonthFund() = indiegogoService.collectCurrentMonth() + kissBankBankService.totalCollectCurrentMonth().euroToDollar()
 }
 

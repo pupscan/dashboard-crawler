@@ -57,7 +57,7 @@ class KissKissBankBankController(val service: KissKissBankBankService) {
 
 @Service
 class KissKissBankBankService(val repository: KissKissBankBankRepository) {
-    private val difference = 7_599
+//    private val difference = 7_599
     private val goal = 10000
     private var collect = 0
     private var backers = 0
@@ -68,11 +68,14 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
     fun lastUpdateDateTime() = lastUpdated
     fun goal() = goal
     fun goalReached() = totalCollectCurrentMonth() * 100 / goal()
-    fun totalCollectCurrentMonth() = currentCollect() - difference
+    fun totalCollectCurrentMonth() = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth()
     fun collectCurrentMonthByDay() = currentMonthByDay().map { it.date to it.collect }.toMap()
     fun collectAggregateMonthBydDay() = aggregateMonthByDay().map { it.date to it.collect }.toMap()
-
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
+    fun totalCollectAtTheBeginningOfCurrentMonth() = repository
+            .findByDateBetween(LocalDate.MIN, LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()))
+            .map { it.collect }
+            .sum()
 
     @Scheduled(cron = "0 59 23 * * ?")
     fun saveIndiegogoData() {
@@ -99,7 +102,7 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
                             it.backers)
                 } + KissKissBankBank(
                 date = lastUpdateDateTime().toLocalDate(),
-                collect = currentCollect() - currentMonthData.last().collect,
+                collect = currentCollect() - (currentMonthData.lastOrNull()?.collect ?: 0),
                 backers = currentBackers())
         return (1..lastDayOfCurrentMonth.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
@@ -111,11 +114,12 @@ class KissKissBankBankService(val repository: KissKissBankBankRepository) {
     private fun aggregateMonthByDay(): List<KissKissBankBank> {
         val firstDayOfCurrentMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth())
         val lastDayOfCurrentMonth = firstDayOfCurrentMonth.with(TemporalAdjusters.lastDayOfMonth())
+        val totalCollectAtTheBeginningOfCurrentMonth = totalCollectAtTheBeginningOfCurrentMonth()
         val currentMonthData = repository
                 .findByDateBetween(firstDayOfCurrentMonth, lastDayOfCurrentMonth.plusDays(1))
                 // TODO: fix next month
-                .map { KissKissBankBank(it.id, it.date, it.collect - difference, it.backers) }.toMutableList()
-        currentMonthData.add(KissKissBankBank(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - difference, backers = currentBackers()))
+                .map { KissKissBankBank(it.id, it.date, it.collect - totalCollectAtTheBeginningOfCurrentMonth, it.backers) }.toMutableList()
+        currentMonthData.add(KissKissBankBank(date = lastUpdateDateTime().toLocalDate(), collect = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth, backers = currentBackers()))
         return (1L..currentMonthData.last().date.dayOfMonth).map {
             val currentDay = firstDayOfCurrentMonth.plusDays(it - 1L)
             currentMonthData.find { it.date == currentDay } ?: KissKissBankBank(date = currentDay, backers = 0, collect = 0)
