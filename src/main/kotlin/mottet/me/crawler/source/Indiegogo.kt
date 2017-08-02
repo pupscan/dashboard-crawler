@@ -85,11 +85,11 @@ class IndiegogoService(@Value("\${indiegogo.app-token}") val indiegogoToken: Str
     fun backersAggregateMonthByDay() = aggregateMonthByDay().map { it.date to it.backers }.toMap()
     fun totalCollectAtTheBeginningOfCurrentMonth() = repository
             .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
-            .collect
+            .collect + 995 // TODO: Remove in september
 
-    @Scheduled(cron = "0 59 23 * * ?")
+    @Scheduled(cron = "0 59 8 * * ?") // Save to pacific time
     fun saveIndiegogoData() {
-        repository.save(Indiegogo(date = LocalDate.now(), collect = collect, backers = backers))
+        repository.save(Indiegogo(date = LocalDate.now().minusDays(1), collect = collect, backers = backers))
     }
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
