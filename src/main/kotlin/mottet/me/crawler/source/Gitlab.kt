@@ -16,20 +16,19 @@ class GitlabConfiguration {
     fun requestInterceptor() = RequestInterceptor { template -> template.header("PRIVATE-TOKEN", "pprGjpKAT69QiCh7BFvP") }
 }
 
+@FeignClient(name = "gitlab", url = "https://gitlab.com/api/v4/groups/pupscan",configuration = arrayOf(GitlabConfiguration::class))
+interface GitlabClient {
+
+    @RequestMapping("/milestones/388943/issues?per_page=100")
+    fun mvpIssues(): List<Issue>
+}
+
 @RestController
 @RequestMapping("/gitlab")
 class GitlabController(val service: GitlabService) {
 
     @RequestMapping("/progression")
     fun progression() = "{\"current\" : ${service.currentProgression()} }"
-
-}
-
-@FeignClient(name = "gitlab", url = "https://gitlab.com/api/v4/groups/pupscan")
-interface GitlabClient {
-
-    @RequestMapping("/milestones/388943/issues?per_page=100")
-    fun mvpIssues(): List<Issue>
 }
 
 @Service
