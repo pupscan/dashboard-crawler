@@ -46,9 +46,12 @@ class StripeService(private val stripeClient: StripeClient,
     fun currentCollect() = collect
     fun lastUpdateDateTime() = lastUpdated
     fun collectCurrentMonth() = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth()
-    fun totalCollectAtTheBeginningOfCurrentMonth() = repository
-            .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
-            .collect ?: 0
+    fun totalCollectAtTheBeginningOfCurrentMonth(): Int {
+        val findByDate = repository
+                .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
+        if (findByDate.isPresent) return findByDate.get().collect
+        return 0
+    }
 
     @Scheduled(cron = "0 59 8 * * ?") // Save to pacific time
     fun saveStripeData() {
@@ -75,7 +78,7 @@ class StripeService(private val stripeClient: StripeClient,
 }
 
 interface StripeRepository : CrudRepository<Stripe, String> {
-    fun findByDate(date: LocalDate): Stripe
+    fun findByDate(date: LocalDate): Optional<Stripe>
 }
 
 @Document
