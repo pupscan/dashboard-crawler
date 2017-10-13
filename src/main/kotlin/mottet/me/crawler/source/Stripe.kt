@@ -40,17 +40,21 @@ class StripeService(private val stripeClient: StripeClient,
     private var collect = 0
     private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
+    private var payouts = emptyList<Payout>()
 
 
     fun currentBackers() = backers
     fun currentCollect() = collect
     fun lastUpdateDateTime() = lastUpdated
-    fun collectCurrentMonth() = currentCollect() - totalCollectAtTheBeginningOfCurrentMonth()
+    fun collectCurrentMonth(): Int {
+        if (totalCollectAtTheBeginningOfCurrentMonth() == 0) return stripeClient.todelete().data.map { it.amount }.toList().sum() / 100
+        return currentCollect() - totalCollectAtTheBeginningOfCurrentMonth()
+    }
     fun totalCollectAtTheBeginningOfCurrentMonth(): Int {
         val findByDate = repository
                 .findByDate(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).minusDays(1))
-        if (findByDate.isPresent) return findByDate.get().collect
-        return 0
+        if (findByDate.isPresent) return findByDate.get().collect // TODO remove test and delete before
+        return 0 // TODO: todelete
     }
 
     @Scheduled(cron = "0 59 8 * * ?") // Save to pacific time
@@ -60,12 +64,13 @@ class StripeService(private val stripeClient: StripeClient,
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        val payouts = stripeClient.payout().data
+        payouts = stripeClient.payout().data
         collect = total(payouts)
         backers = payouts.size
         lastUpdated = LocalDateTime.now()
     }
 
+    // TO fetch peagalbe
     private fun total(payouts: List<Payout>): Int {
         val totalCents = payouts
                 .filter { it.status == "paid" }
@@ -95,10 +100,14 @@ class StripeClientConfiguration {
 
 @FeignClient(name = "stripe", url = "https://api.stripe.com/v1", configuration = arrayOf(StripeClientConfiguration::class))
 interface StripeClient {
+    @RequestMapping("/payouts?limit=100&created[gte]=1506892738")
+    fun todelete(): StripeResult  // TODO : delete
 
     @RequestMapping("/payouts?limit=100")
     fun payout(): StripeResult
 }
 
 data class StripeResult(val data: List<Payout>)
-data class Payout(val amount: Int, val currency: String, val status: String)
+data class Payout(val amount: Int,
+                  val currency: String,
+                  val status: String)

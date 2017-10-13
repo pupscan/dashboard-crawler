@@ -16,8 +16,9 @@ class StripeTest {
 
     @Test
     fun `shoud scan a tv show directory`() {
-        service.saveStripeData()
-        val data = service.collectCurrentMonth()
+//        val payout = client.get()
+//        service.saveStripeData()
+//        val data = service.collectCurrentMonth()
     }
 
 
