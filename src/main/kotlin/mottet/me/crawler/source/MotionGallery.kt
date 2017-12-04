@@ -34,8 +34,8 @@ class MotionGalleryController(val service: MotionGalleryService) {
 
 @Service
 class MotionGalleryService(private val repository: MotionGalleryRepository) {
-    private var collect = 4895777
-    private var backers = 2618
+    private var collect = 0
+    private var backers = 0
     private var lastUpdated = LocalDateTime.now()!!
 
     fun currentBackers() = backers
@@ -56,8 +56,8 @@ class MotionGalleryService(private val repository: MotionGalleryRepository) {
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        collect = collect + fetch(".stats-table .money .number").yenToDollar().toInt()
-        backers = backers + fetch(".stats-table .collector .number")
+        collect = 489577 + fetch(".stats-table .money .number").yenToDollar().toInt()
+        backers = 2618 + fetch(".stats-table .collector .number")
         lastUpdated = LocalDateTime.now()
     }
 
