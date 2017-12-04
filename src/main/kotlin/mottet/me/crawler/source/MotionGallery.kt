@@ -56,8 +56,8 @@ class MotionGalleryService(private val repository: MotionGalleryRepository) {
 
     @Scheduled(fixedDelay = 350_000, initialDelay = 0)
     final fun fetch() {
-        collect = fetch(".stats-table .money .number").yenToDollar().toInt()
-        backers = fetch(".stats-table .collector .number")
+        collect = collect + fetch(".stats-table .money .number").yenToDollar().toInt()
+        backers = backers + fetch(".stats-table .collector .number")
         lastUpdated = LocalDateTime.now()
     }
 
