@@ -61,7 +61,7 @@ class MotionGalleryService(private val repository: MotionGalleryRepository) {
         lastUpdated = LocalDateTime.now()
     }
 
-    fun fetch(css: String) = Jsoup.connect("https://motion-gallery.net/projects/pupscan")
+    fun fetch(css: String) = Jsoup.connect("https://motion-gallery.net/projects/pupscan_2")
             .get()
             .select(css)
             .text().replace(",", "").toInt()
