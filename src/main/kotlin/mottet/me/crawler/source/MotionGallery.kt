@@ -34,8 +34,8 @@ class MotionGalleryController(val service: MotionGalleryService) {
 
 @Service
 class MotionGalleryService(private val repository: MotionGalleryRepository) {
-    private var collect = 0
-    private var backers = 0
+    private var collect = 4895777
+    private var backers = 2618
     private var lastUpdated = LocalDateTime.now()!!
 
     fun currentBackers() = backers
