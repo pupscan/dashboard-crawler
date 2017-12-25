@@ -1,7 +1,9 @@
 package mottet.me.crawler
 
 import org.springframework.boot.SpringApplication
+import org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 import org.springframework.cloud.netflix.feign.EnableFeignClients
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -16,7 +18,7 @@ import java.util.*
 
 @EnableScheduling
 @EnableFeignClients
-@SpringBootApplication
+@SpringBootApplication(exclude = arrayOf(SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class))
 class CrawlerApplication {
     @Bean
     fun corsConfigurer() =
